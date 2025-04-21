@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新北捷運職務測驗</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Step 1: Start Page -->
+  <div id="startPage" class="page active">
+    <h1>🚇 你適合的新北捷運職務是？</h1>
+    <button onclick="goToPage('majorPage')">開始測驗</button>
+  </div>
+
+  <!-- Step 2: Select Major -->
+  <div id="majorPage" class="page">
+    <h2>你的專業領域是？</h2>
+    <div class="option-grid">
+      <button onclick="goToInfoPage('機械/車輛')">機械／車輛</button>
+      <button onclick="goToInfoPage('電機/電子')">電機／電子</button>
+      <button onclick="goToInfoPage('土木/建築')">土木／建築</button>
+      <button onclick="goToInfoPage('資訊/通訊')">資訊／通訊</button>
+      <button onclick="goToInfoPage('運輸/不限')">運輸／不限</button>
+    </div>
+  </div>
+
+  <!-- Step 3: Fill Personal Info -->
+  <div id="infoPage" class="page">
+    <h2>你的基本資料</h2>
+    <form id="userInfoForm">
+      <label for="gender">請選擇您的性別：</label><br>
+      <label><input type="radio" name="gender" value="male"> 男性</label>
+      <label><input type="radio" name="gender" value="female"> 女性</label>
+      <label><input type="radio" name="gender" value="other"> 其他</label>
+      <br><br>
+      <label for="age">您的年齡區間：</label>
+      <select name="age" id="age">
+        <option value="18-25">18-25 歲</option>
+        <option value="26-35">26-35 歲</option>
+        <option value="36-45">36-45 歲</option>
+        <option value="46+">46 歲以上</option>
+      </select>
+      <br><br>
+      <label for="experience">您是否具備相關工作經驗？</label><br>
+      <label><input type="radio" name="experience" value="yes"> 是</label>
+      <label><input type="radio" name="experience" value="no"> 否</label>
+      <br><br>
+      <button type="button" onclick="goToPage('interestPage')">下一步</button>
+    </form>
+  </div>
+
+  <!-- Step 3.5: Interest Page -->
+  <div id="interestPage" class="page">
+    <h2>你對以下工作內容有興趣嗎？（可複選）</h2>
+    <div class="option-grid">
+      <label><input type="checkbox" name="topics" value="維修設備"> 維修設備</label>
+      <label><input type="checkbox" name="topics" value="操作控制台"> 操作控制台</label>
+      <label><input type="checkbox" name="topics" value="列車駕駛"> 列車駕駛</label>
+      <label><input type="checkbox" name="topics" value="供電系統維護"> 供電系統維護</label>
+      <label><input type="checkbox" name="topics" value="號誌系統維護"> 號誌系統維護</label>
+      <label><input type="checkbox" name="topics" value="土木結構檢修"> 土木結構檢修</label>
+      <label><input type="checkbox" name="topics" value="車站事務處理"> 車站事務處理</label>
+      <label><input type="checkbox" name="topics" value="旅客服務與引導"> 旅客服務與引導</label>
+    </div>
+    <br><button type="button" onclick="submitUserInfo()">開始分析</button>
+  </div>
+  </div>
+
+  <!-- Step 4: Quiz Placeholder -->
+  <div id="quizPage" class="page">
+    <h2>分析中...</h2>
+    <p>請稍候，我們正在根據你的專業領域分析推薦職務。</p>
+    <div class="metro-animation">
+      <img src="metro-train.gif" alt="捷運列車動畫" style="width: 150px; height: auto; display: block; margin: 0 auto;">
+    </div>
+  </div>
+
+  <!-- Step 5: Result -->
+  <div id="resultPage" class="page">
+    <h2>🎉 測驗結果</h2>
+    <div id="resultText">你適合的職務會顯示在這裡。</div>
+    <button onclick="goToPage('startPage')">重新測驗</button>
+  </div>
+
+  <script>
+    let selectedMajor = '';
+    let userGender = '';
+    let userAge = '';
+    let userExperience = '';
+let userInterest = []; // 儲存興趣選項
+
+    function goToPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+
+  if (pageId === 'startPage') {
+    // 清空暫存資料
+    selectedMajor = '';
+    userGender = '';
+    userAge = '';
+    userExperience = '';
+    userInterest = [];
+
+    // 清空表單
+    const form = document.getElementById('userInfoForm');
+    if (form) form.reset();
+
+    // 清除 checkbox
+    const topics = document.querySelectorAll('input[name="topics"]');
+    topics.forEach(cb => cb.checked = false);
+
+    // 清除結果
+    const resultBox = document.getElementById("resultText");
+    if (resultBox) resultBox.innerHTML = "你適合的職務會顯示在這裡。";
+  }
+}
+
+    function goToInfoPage(major) {
+      selectedMajor = major;
+      goToPage('infoPage');
+    }
+
+    function submitUserInfo() {
+  const gender = document.querySelector('input[name="gender"]:checked');
+  const age = document.getElementById('age').value;
+  const experience = document.querySelector('input[name="experience"]:checked');
+  const interestNodes = document.querySelectorAll('input[name="topics"]:checked');
+  userInterest = Array.from(interestNodes).map(i => i.value);
+
+  if (!gender || !experience) {
+    alert('請完整填寫性別與經驗問題');
+    return;
+  }
+
+  userGender = gender.value;
+  userAge = age;
+  userExperience = experience.value;
+
+      goToPage('quizPage');
+
+      setTimeout(() => {
+        let job = '';
+
+        // 加上興趣加權：每個職務得分初始為 0
+        const scores = {
+          '車輛技術員': 0,
+          '供電技術員': 0,
+          '控制員': 0,
+          '軌道土木技術員': 0,
+          '號誌技術員': 0,
+          '事務員': 0
+        };
+
+        // 興趣與職務對應
+        const interestMapping = {
+          '維修設備': ['車輛技術員'],
+          '列車駕駛': ['控制員'],
+          '操作控制台': ['控制員'],
+          '供電系統維護': ['供電技術員'],
+          '號誌系統維護': ['號誌技術員'],
+          '土木結構檢修': ['軌道土木技術員'],
+          '車站事務處理': ['事務員'],
+          '旅客服務與引導': ['事務員']
+        };
+
+        userInterest.forEach(item => {
+          const matchedJobs = interestMapping[item];
+          if (matchedJobs) {
+            matchedJobs.forEach(j => scores[j] += 1);
+          }
+        });
+
+        // 科系加分
+        if (selectedMajor === '機械/車輛') scores['車輛技術員'] += 2;
+        else if (selectedMajor === '電機/電子') scores['供電技術員'] += 2;
+        else if (selectedMajor === '土木/建築') scores['軌道土木技術員'] += 2;
+        else if (selectedMajor === '資訊/通訊') scores['號誌技術員'] += 2;
+        else if (selectedMajor === '運輸/不限') scores['控制員'] += 2;
+
+        // 找出最高分的職務
+        job = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+        showResult(job);
+      }, 1000);
+    }
+
+    function showResult(jobTitle) {
+      const aiComment = {
+        '控制員': "你具備邏輯分析與專注力，適合負責捷運運行的關鍵節點，控制列車調度與即時反應。",
+        '車輛技術員': "你動手能力佳，對機械系統有興趣，適合負責列車維修與保養作業。",
+        '供電技術員': "你有電機相關背景，能處理高壓電系統與緊急狀況，適合維護供電穩定。",
+        '軌道土木技術員': "你不怕戶外工作，具備土木結構概念，適合進行軌道與設施檢修。",
+        '事務員': "你溝通能力佳、細心穩定，適合從事文書、行政與旅客協助等事務。",
+        '號誌技術員': "你邏輯清晰，擅長系統操作與維護，適合負責號誌系統的設定與檢修。"
+      };
+
+      const text = `
+        <h3>👤 你的個人資訊</h3>
+        <ul>
+          <li>性別：${userGender === 'male' ? '男性' : userGender === 'female' ? '女性' : '其他'}</li>
+          <li>年齡區間：${userAge}</li>
+          <li>有無經驗：${userExperience === 'yes' ? '是' : '否'}</li>
+        </ul>
+        <h3>你最適合的職務是：${jobTitle}</h3>
+        <p>🤖 AI 分析建議：${aiComment[jobTitle] || '你有多種潛力方向，建議探索更多可能！'}</p>
+      `;
+      document.getElementById("resultText").innerHTML = text;
+      goToPage('resultPage');
+    }
+  </script>
+
+</body>
+</html>
+
+
